@@ -38,12 +38,20 @@ func main() {
 	router.Use(middleware.URLFormat)     // Для красивых URL при подключении к обработчикам
 	router.Use(logger.CustomLogger(log)) // Логирует все исходящие запросы
 
-	// Handlers
+	// Health check handler
 	router.Get("/health", handlers.StatusHandler)
+
+	// Products handlers
 	router.Get("/products", handlers.GetAllProducts(log, storage))
 	router.Post("/products", handlers.CreateProduct(log, storage))
 	router.Delete("/products/{id}", handlers.DeleteProduct(log, storage))
 	router.Put("/products/{id}", handlers.UpdateProduct(log, storage))
+	router.Get("/products/{id}", handlers.GetProductByID(log, storage))
+
+	// Users handlers
+	router.Get("/users", handlers.GetAllUsers(log, storage))
+	router.Post("/users", handlers.CreateUser(log, storage))
+	router.Get("/users/{email}", handlers.GetUserByEmail(log, storage))
 
 	// Оборачиваем роутер в middleware
 	handler := logger.LoggingMiddleware(log, router)
