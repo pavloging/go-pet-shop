@@ -39,7 +39,7 @@ func (s *Storage) CreateProduct(p models.Product) error {
 	return nil
 }
 
-func (s *Storage) DeleteProduct(id string) error {
+func (s *Storage) DeleteProduct(id int) error {
 	const fn = "storage.postgres.product.DeleteProduct"
 
 	_, err := s.db.Exec(context.Background(),
@@ -63,4 +63,16 @@ func (s *Storage) UpdateProduct(p models.Product) error {
 	}
 
 	return nil
+}
+
+func (s *Storage) GetProductByID(id int) (models.Product, error) {
+	const fn = "storage.postgres.product.GetProductByID"
+
+	var product models.Product
+	err := s.db.QueryRow(context.Background(), `SELECT id, name, price, stock FROM products 
+	WHERE id = $1`, id).Scan(&product.ID, &product.Name, &product.Price, &product.Stock)
+	if err != nil {
+		return models.Product{}, fmt.Errorf("%s: %w", fn, err)
+	}
+	return product, nil
 }

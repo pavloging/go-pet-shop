@@ -31,6 +31,7 @@ import (
 	"go-pet-shop/models"
 	"log/slog"
 	"net/http"
+	"strconv"
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
@@ -40,8 +41,9 @@ import (
 type Products interface {
 	GetAllProducts() ([]models.Product, error)
 	CreateProduct(product models.Product) error
-	DeleteProduct(id string) error
+	DeleteProduct(id int) error
 	UpdateProduct(product models.Product) error
+	GetProductByID(id int) (models.Product, error)
 }
 
 func GetAllProducts(log *slog.Logger, products Products) http.HandlerFunc {
@@ -108,20 +110,27 @@ func DeleteProduct(log *slog.Logger, products Products) http.HandlerFunc {
 
 		log.Info("Deleting product", slog.String("url", r.URL.String()))
 
-		id := chi.URLParam(r, "id")
-		if id == "" {
+		idStr := chi.URLParam(r, "id")
+		if idStr == "" {
 			log.Error("empty id")
-			http.Error(w, "invalid request", http.StatusBadRequest)
+			http.Error(w, "invalid request: id is required", http.StatusBadRequest)
+			return
+		}
+
+		id, err := strconv.Atoi(idStr)
+		if err != nil {
+			log.Error("invalid id format", slog.String("id", idStr), slog.Any("error", err))
+			http.Error(w, "invalid request: id must be a number", http.StatusBadRequest)
 			return
 		}
 
 		if err := products.DeleteProduct(id); err != nil {
-			log.Error("failed to delete product", slog.Any("error", err))
+			log.Error("failed to delete product", slog.Int("id", id), slog.Any("error", err))
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
-		log.Info("Deleted product successfully", slog.String("url", r.URL.String()))
+		log.Info("Deleted product successfully", slog.Int("id", id), slog.String("url", r.URL.String()))
 
 		render.JSON(w, r, map[string]string{"status": "Product deleted successfully"})
 	}
@@ -154,5 +163,42 @@ func UpdateProduct(log *slog.Logger, products Products) http.HandlerFunc {
 		log.Info("Product updated successfully", slog.String("url", r.URL.String()))
 
 		render.JSON(w, r, map[string]string{"status": "Product updated successfully"})
+	}
+}
+
+func GetProductByID(log *slog.Logger, products Products) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		const fn = "handlers.products.GetProductByID"
+
+		log = log.With(
+			slog.String("fn", fn),
+			slog.String("request_id", middleware.GetReqID(r.Context())),
+		)
+
+		idStr := chi.URLParam(r, "id")
+		if idStr == "" {
+			log.Error("empty id")
+			http.Error(w, "invalid request: id is required", http.StatusBadRequest)
+			return
+		}
+
+		id, err := strconv.Atoi(idStr)
+		if err != nil {
+			log.Error("invalid id format", slog.String("id", idStr), slog.Any("error", err))
+			http.Error(w, "invalid request: id must be a number", http.StatusBadRequest)
+			return
+		}
+
+		product, err := products.GetProductByID(id)
+
+		if err != nil {
+			log.Error("failed to get a product", slog.Any("error", err))
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		log.Info("A product is retrieved successfully", slog.String("url", r.URL.String()))
+
+		render.JSON(w, r, product)
 	}
 }
