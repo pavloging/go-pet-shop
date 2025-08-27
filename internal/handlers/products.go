@@ -1,34 +1,7 @@
-// package handlers
-
-// import (
-// 	"go-pet-shop/internal/domain"
-// 	"net/http"
-
-// 	"github.com/go-chi/render"
-// )
-
-// type ProductsHandler struct {
-// 	repo domain.ProductRepository
-// }
-
-// func NewProductsHandler(repo domain.ProductRepository) *ProductsHandler {
-// 	return &ProductsHandler{repo: repo}
-// }
-
-// func (h *ProductsHandler) GetProducts(w http.ResponseWriter, r *http.Request) {
-// 	products, err := h.repo.GetAll()
-// 	if err != nil {
-// 		http.Error(w, err.Error(), http.StatusInternalServerError)
-// 		return
-// 	}
-
-// 	render.JSON(w, r, products)
-// }
-
 package handlers
 
 import (
-	"go-pet-shop/models"
+	"go-pet-shop/internal/models"
 	"log/slog"
 	"net/http"
 
