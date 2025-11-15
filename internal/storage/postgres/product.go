@@ -6,6 +6,11 @@ import (
 	"go-pet-shop/internal/models"
 )
 
+// ❗ Ошибка: контекст не должен создаваться через context.Background() внутри методов.
+// Нужно пробросить ctx из main.go (или из вызывающего слоя) до уровня storage.
+// Иначе тайм-ауты и отмены не будут работать — все запросы всегда будут выполняться
+// с “вечным” background-контекстом.
+// Задача ученика: исправить это и передавать единый ctx в каждый запрос.
 func (s *Storage) GetAllProducts() ([]models.Product, error) {
 	const fn = "storage.postgres.product.GetAllProducts"
 
@@ -26,6 +31,11 @@ func (s *Storage) GetAllProducts() ([]models.Product, error) {
 	return products, nil
 }
 
+// ❗ Ошибка: контекст не должен создаваться через context.Background() внутри методов.
+// Нужно пробросить ctx из main.go (или из вызывающего слоя) до уровня storage.
+// Иначе тайм-ауты и отмены не будут работать — все запросы всегда будут выполняться
+// с “вечным” background-контекстом.
+// Задача ученика: исправить это и передавать единый ctx в каждый запрос.
 func (s *Storage) CreateProduct(p models.Product) error {
 	const fn = "storage.postgres.product.CreateProduct"
 
@@ -39,6 +49,11 @@ func (s *Storage) CreateProduct(p models.Product) error {
 	return nil
 }
 
+// ❗ Ошибка: контекст не должен создаваться через context.Background() внутри методов.
+// Нужно пробросить ctx из main.go (или из вызывающего слоя) до уровня storage.
+// Иначе тайм-ауты и отмены не будут работать — все запросы всегда будут выполняться
+// с “вечным” background-контекстом.
+// Задача ученика: исправить это и передавать единый ctx в каждый запрос.
 func (s *Storage) DeleteProduct(id string) error {
 	const fn = "storage.postgres.product.DeleteProduct"
 
@@ -52,6 +67,11 @@ func (s *Storage) DeleteProduct(id string) error {
 	return nil
 }
 
+// ❗ Ошибка: контекст не должен создаваться через context.Background() внутри методов.
+// Нужно пробросить ctx из main.go (или из вызывающего слоя) до уровня storage.
+// Иначе тайм-ауты и отмены не будут работать — все запросы всегда будут выполняться
+// с “вечным” background-контекстом.
+// Задача ученика: исправить это и передавать единый ctx в каждый запрос.
 func (s *Storage) UpdateProduct(p models.Product) error {
 	const fn = "storage.postgres.product.UpdateProduct"
 
